@@ -36,12 +36,12 @@ def upload():
         print(translated_content)
 
         # Send the translated file back as a response object.
-        response = send_file(
+        send_file(
             translated_file_path,
             as_attachment=True,
             download_name=f'{original_file_name}_{request.args.get("dest_language")}.srt'
         )
-        return remove_file(response, translated_file_path)
+
 
     except Exception as e:
         return f"An error occurred: {e}"
