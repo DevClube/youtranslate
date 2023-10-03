@@ -35,8 +35,9 @@ def upload():
         print("Translated Content:")
         print(translated_content)
 
+        os.remove(translated_file_path)
         # Send the translated file back as a response object.
-        send_file(
+        return send_file(
             translated_file_path,
             as_attachment=True,
             download_name=f'{original_file_name}_{request.args.get("dest_language")}.srt'
