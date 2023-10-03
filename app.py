@@ -1,16 +1,18 @@
 
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, request, send_file
 import os
 from test import translate_srt, read_srt, write_srt, remove_file
 from flask_cors import CORS
+import io
+
 app = Flask(__name__)
 CORS(app)
 
-@app.route("/", methods=["GET"])
-def index():
-    return render_template("index.html")
-# Define a route to handle file uploads
+# @app.route("/", methods=["GET"])
+# def index():
+#     return render_template("index.html")
+# # Define a route to handle file uploads
 
 
 
@@ -27,25 +29,22 @@ def upload():
         # Translate the SRT content.
         translated_content = translate_srt(srt_content, request.args.get('dest_language'))
 
-        # Write the translated SRT content to a new file.
-        translated_file_path = f'{original_file_name}_{request.args.get("dest_language")}.srt'
-        write_srt(translated_file_path, translated_content)
+        # Create an in-memory byte stream.
+        output = io.BytesIO()
+        output.write(translated_content.encode('utf-8'))
+        output.seek(0)
 
-        # Log the translated content to the console for debugging
-        print("Translated Content:")
-        print(translated_content)
-
-        os.remove(translated_file_path)
         # Send the translated file back as a response object.
         return send_file(
-            translated_file_path,
+            output,
             as_attachment=True,
-            download_name=f'{original_file_name}_{request.args.get("dest_language")}.srt'
+            download_name=f'{original_file_name}_{request.args.get("dest_language")}.srt',
+            mimetype='text/plain'
         )
-
 
     except Exception as e:
         return f"An error occurred: {e}"
+
 
 
 if __name__ == '__main__':
